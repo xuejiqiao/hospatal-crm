@@ -16,8 +16,8 @@ return array(
     
     // 微信小程序配置
     'wechat' => array(
-        'appid' => 'wx6d1a68a6ff74bf1e',
-        'secret' => '84834fe3ad2395297a0e4bab5e15b58a', // 请替换为您的AppSecret
+        'appid' => 'you_appid',
+        'secret' => 'you_AppSecret', // 请替换为您的AppSecret
     ),
     
     // API配置
