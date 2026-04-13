@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM API测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .api-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .api-section h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .response pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .response.success {
+            border-left: 4px solid #28a745;
+            background: #f0fff4;
+        }
+        
+        .response.error {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+        }
+        
+        .token-display {
+            padding: 10px;
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+        
+        .token-display strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 CRM API测试工具</h1>
+        
+        <div class="form-group">
+            <label>API基础URL:</label>
+            <input type="text" id="baseUrl" value="http://localhost/crm-weapp-api" placeholder="http://your-domain/api">
+        </div>
+        
+        <div class="token-display">
+            <strong>当前Token:</strong> <span id="currentToken">未登录</span>
+        </div>
+        
+        <!-- 微信登录 -->
+        <div class="api-section">
+            <h2>1. 微信小程序登录</h2>
+            <div class="form-group">
+                <label>登录Code:</label>
+                <input type="text" id="loginCode" placeholder="输入微信登录code">
+            </div>
+            <button onclick="testLogin()">测试登录</button>
+            <div id="loginResponse" class="response" style="display:none;"></div>
+        </div>
+        
+        <!-- 医院管理 -->
+        <div class="api-section">
+            <h2>2. 医院管理</h2>
+            <div class="form-group">
+                <button onclick="testGetHospitals()">获取医院列表</button>
+                <button onclick="testAddHospital()">添加医院(管理员)</button>
+            </div>
+            <div id="hospitalResponse" class="response" style="display:none;"></div>
+        </div>
+        
+        <!-- 预约管理 -->
+        <div class="api-section">
+            <h2>3. 预约管理</h2>
+            <div class="form-group">
+                <label>预约数据 (JSON):</label>
+                <textarea id="reservationData">{
+    "hospital_id": 1,
+    "patient_name": "测试用户",
+    "patient_phone": "13800138000",
+    "reservation_date": "2026-04-10",
+    "time_period": "上午",
+    "department": "内科",
+    "remark": "测试预约"
+}</textarea>
+            </div>
+            <button onclick="testCreateReservation()">创建预约</button>
+            <button onclick="testGetMyReservations()">我的预约列表</button>
+            <div id="reservationResponse" class="response" style="display:none;"></div>
+        </div>
+        
+        <!-- 统计分析 -->
+        <div class="api-section">
+            <h2>4. 统计分析(管理员)</h2>
+            <div class="form-group">
+                <button onclick="testGetOverview()">获取概览统计</button>
+                <button onclick="testGetTrend()">获取预约趋势</button>
+                <button onclick="testGetHospitalRank()">医院排名</button>
+            </div>
+            <div id="statsResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+    
+    <script>
+        let authToken = '';
+        
+        // 显示响应
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'response ' + (isError ? 'error' : 'success');
+            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        // 发送请求
+        async function sendRequest(url, method = 'GET', data = null, useToken = false) {
+            const baseUrl = document.getElementById('baseUrl').value.replace(/\/$/, '');
+            const fullUrl = baseUrl + url;
+            
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            if (useToken && authToken) {
+                options.headers['Authorization'] = 'Bearer ' + authToken;
+            }
+            
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(fullUrl, options);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                return {
+                    code: 500,
+                    message: '请求失败: ' + error.message,
+                    data: null
+                };
+            }
+        }
+        
+        // 测试登录
+        async function testLogin() {
+            const code = document.getElementById('loginCode').value;
+            if (!code) {
+                alert('请输入登录code');
+                return;
+            }
+            
+            const result = await sendRequest('/api/wechat/login', 'POST', {code: code});
+            showResponse('loginResponse', result, result.code !== 200);
+            
+            if (result.code === 200 && result.data && result.data.token) {
+                authToken = result.data.token;
+                document.getElementById('currentToken').textContent = authToken;
+            }
+        }
+        
+        // 获取医院列表
+        async function testGetHospitals() {
+            const result = await sendRequest('/api/hospital/list?page=1&pageSize=10');
+            showResponse('hospitalResponse', result, result.code !== 200);
+        }
+        
+        // 添加医院
+        async function testAddHospital() {
+            const data = {
+                name: '测试医院',
+                address: '测试地址',
+                phone: '010-12345678',
+                intro: '这是一家测试医院',
+                sort: 50
+            };
+            
+            const result = await sendRequest('/api/hospital/add', 'POST', data, true);
+            showResponse('hospitalResponse', result, result.code !== 200);
+        }
+        
+        // 创建预约
+        async function testCreateReservation() {
+            const dataStr = document.getElementById('reservationData').value;
+            let data;
+            
+            try {
+                data = JSON.parse(dataStr);
+            } catch (e) {
+                alert('JSON格式错误: ' + e.message);
+                return;
+            }
+            
+            const result = await sendRequest('/api/reservation/create', 'POST', data, true);
+            showResponse('reservationResponse', result, result.code !== 200);
+        }
+        
+        // 获取我的预约
+        async function testGetMyReservations() {
+            const result = await sendRequest('/api/reservation/myList?page=1&pageSize=10', 'GET', null, true);
+            showResponse('reservationResponse', result, result.code !== 200);
+        }
+        
+        // 获取概览统计
+        async function testGetOverview() {
+            const result = await sendRequest('/api/stats/overview', 'GET', null, true);
+            showResponse('statsResponse', result, result.code !== 200);
+        }
+        
+        // 获取预约趋势
+        async function testGetTrend() {
+            const result = await sendRequest('/api/stats/reservationTrend', 'GET', null, true);
+            showResponse('statsResponse', result, result.code !== 200);
+        }
+        
+        // 获取医院排名
+        async function testGetHospitalRank() {
+            const result = await sendRequest('/api/stats/hospitalRank?limit=10', 'GET', null, true);
+            showResponse('statsResponse', result, result.code !== 200);
+        }
+    </script>
+</body>
+</html>

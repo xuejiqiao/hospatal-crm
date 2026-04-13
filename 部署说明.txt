@@ -1,0 +1,163 @@
+========================================
+CRM微信小程序后端API - 部署说明
+========================================
+
+【快速开始】
+
+1. 导入数据库
+   - 打开phpMyAdmin或MySQL命令行
+   - 导入 install.sql 文件
+   - 或执行: mysql -u root -p < install.sql
+
+2. 配置数据库连接
+   - 打开 config/database.php
+   - 修改以下配置:
+     'host' => 'localhost',
+     'database' => 'crm_weapp',
+     'username' => '你的数据库用户名',
+     'password' => '你的数据库密码',
+
+3. 配置微信小程序
+   - 打开 config/database.php
+   - 修改微信配置:
+     'appid' => '你的微信小程序AppID',
+     'secret' => '你的微信小程序AppSecret',
+
+4. 访问环境检查页面
+   - 浏览器访问: http://127.0.0.3/check.php
+   - 确保所有检查项都通过(显示✓)
+
+5. 测试API
+   - 快速测试: http://127.0.0.3/quick-test.html
+   - 完整测试: http://127.0.0.3/test.html
+   - 使用示例: http://127.0.0.3/examples.php
+
+
+【API调用方式】
+
+方式1: 简化版（推荐，已测试可用）
+URL格式: /api.php?module={模块}&action={动作}
+
+示例:
+- 获取医院列表: http://127.0.0.3/api.php?module=hospital&action=getList
+- 微信登录: http://127.0.0.3/api.php?module=wechat&action=login
+- 创建预约: http://127.0.0.3/api.php?module=reservation&action=create
+
+
+方式2: RESTful风格（需要URL重写）
+URL格式: /api/{模块}/{动作}
+
+示例:
+- 获取医院列表: http://127.0.0.3/api/hospital/getList
+- 微信登录: http://127.0.0.3/api/wechat/login
+
+注意: 方式2需要配置Apache的.htaccess或Nginx重写规则
+
+
+【可用API接口】
+
+1. 微信模块 (wechat)
+   - login: 微信小程序登录
+   - getUserInfo: 获取用户信息（需登录）
+   - updateUserInfo: 更新用户信息（需登录）
+
+2. 医院模块 (hospital)
+   - getList: 获取医院列表
+   - getDetail: 获取医院详情
+   - add: 添加医院（需管理员权限）
+   - update: 更新医院（需管理员权限）
+   - delete: 删除医院（需管理员权限）
+
+3. 预约模块 (reservation)
+   - create: 创建预约（需登录）
+   - myList: 我的预约列表（需登录）
+   - cancel: 取消预约（需登录）
+   - getList: 预约列表（需管理员权限）
+   - updateStatus: 更新预约状态（需管理员权限）
+
+4. 统计模块 (stats) - 需管理员权限
+   - getOverview: 统计概览
+   - getReservationTrend: 预约趋势
+   - getHospitalRank: 医院排名
+   - getStatusDistribution: 状态分布
+
+
+【认证说明】
+
+需要在Header中携带Token:
+Authorization: Bearer {token}
+
+JavaScript示例:
+fetch('http://127.0.0.3/api.php?module=reservation&action=myList', {
+  headers: {
+    'Authorization': 'Bearer ' + token
+  }
+})
+
+
+【默认账号】
+
+管理员openid: admin_default
+（首次使用时请修改或创建正式的管理员账号）
+
+
+【目录说明】
+
+crm-weapp-api/
+├── api/              # API接口文件
+├── config/           # 配置文件
+├── core/             # 核心类库
+├── uploads/          # 上传目录（需755权限）
+├── logs/             # 日志目录（需755权限）
+├── api.php           # API入口（简化版，推荐）
+├── index.php         # API入口（RESTful版）
+├── check.php         # 环境检查工具
+├── quick-test.html   # 快速测试工具
+├── test.html         # 完整测试工具
+├── examples.php      # 使用示例
+├── install.sql       # 数据库安装脚本
+├── .htaccess         # Apache重写规则
+└── nginx.conf        # Nginx配置示例
+
+
+【常见问题】
+
+1. 提示"接口模块不存在"
+   解决: 使用 api.php 而不是 index.php
+   示例: http://127.0.0.3/api.php?module=hospital&action=getList
+
+2. 数据库连接失败
+   解决: 检查 config/database.php 中的数据库配置
+
+3. 微信登录失败
+   解决: 
+   - 检查AppID和AppSecret是否正确
+   - 检查服务器是否能访问微信API
+   - 查看 logs/ 目录下的错误日志
+
+4. Token过期
+   解决: Token默认有效期2小时，过期后重新登录获取
+
+5. 权限不足
+   解决: 管理员接口需要admin或manager角色的账号
+
+
+【技术支持】
+
+- 查看日志: logs/ 目录
+- 环境检查: http://127.0.0.3/check.php
+- 使用示例: http://127.0.0.3/examples.php
+
+
+【系统要求】
+
+- PHP >= 7.0
+- MySQL >= 5.4
+- 必需PHP扩展: PDO, PDO_MySQL, JSON, CURL
+- Web服务器: Apache 或 Nginx
+
+
+========================================
+版本: v1.0.0
+更新日期: 2026-04-11
+========================================
