@@ -284,3 +284,9 @@ Token默认有效期为2小时，过期后需要重新登录
 ## 许可证
 
 本项目仅供学习和内部使用。
+如果感觉对您有帮助，可以赞助一下作者，多少随意！
+
+![收款二维码](<img width="260" height="354" alt="image" src="[https://www.xuejiqiao.com/uploads/ueditor/image/202604/17760633781bb5af.png])
+(<img width="260" height="354" alt="image" src="[https://www.xuejiqiao.com/uploads/ueditor/image/202604/17760633781bb5af.png])
+
+
